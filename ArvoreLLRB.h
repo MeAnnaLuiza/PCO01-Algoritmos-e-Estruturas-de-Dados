@@ -1,4 +1,9 @@
-typedef struct NO* ArvLLRB;
+// PCO001 - ALGORITMOS E ESTRUTURAS DE DADOS
+// ANNA LUIZA PEREIRA ROSA - 2024100865
+// JOÃO VITOR DE FARIA - 2024100678
+// YTALO YSMAICON GOMES - 20223103915
+
+typedef struct NO* ArvLLRB; //Criação do ponteiro para a árvore
 ArvLLRB* criar_arvore();
 void liberar_arvore(ArvLLRB* raiz);
 int inserir_novo_no(ArvLLRB* raiz,int valor);
