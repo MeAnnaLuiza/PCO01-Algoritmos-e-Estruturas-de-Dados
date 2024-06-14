@@ -1,10 +1,17 @@
+// PCO001 - ALGORITMOS E ESTRUTURAS DE DADOS
+// ANNA LUIZA PEREIRA ROSA - 2024100865
+// JOÃO VITOR DE FARIA - 2024100678
+// YTALO YSMAICON GOMES - 20223103915
+
 #include <stdio.h>
 #include <stdlib.h>
-#include "ArvoreLLRB.h"
+#include "ArvoreLLRB.h" //Inclui os protótipos das funções
 
+//Define as cores dos nós
 #define VERMELHO 1
 #define PRETO 0
 
+//Define a estrutura de cada nó da árvore
 typedef struct NO{
     int info;
     struct NO *esq;
@@ -12,6 +19,7 @@ typedef struct NO{
     int cor;
 } NO;
 
+//Função para alocação da memória necessária para criação da árvore
 ArvLLRB* criar_arvore(){
     ArvLLRB* raiz = (ArvLLRB*) malloc(sizeof(ArvLLRB));
     if(raiz != NULL){
@@ -20,6 +28,7 @@ ArvLLRB* criar_arvore(){
     return raiz;
 }
 
+//Função para liberar um único nó da árvore
 void liberar_no(NO* no){
     if(no == NULL)
         return;
@@ -29,6 +38,7 @@ void liberar_no(NO* no){
     no = NULL;
 }
 
+//Função para liberar a árvore como um todo
 void liberar_arvore(ArvLLRB* raiz){
     if(raiz == NULL)
         return;
@@ -36,6 +46,7 @@ void liberar_arvore(ArvLLRB* raiz){
     free(raiz);
 }
 
+//Função para buscar um nó na árvore
 int buscar_na_arvore(ArvLLRB *raiz, int valor){
     if(raiz == NULL)
         return 0;
@@ -52,6 +63,7 @@ int buscar_na_arvore(ArvLLRB *raiz, int valor){
     return 0;
 }
 
+//Função para fazer uma rotação à esquerda na árvore
  NO* rotacionar_esquerda( NO* A){
      NO* B = A->dir;
     A->dir = B->esq;
@@ -61,6 +73,7 @@ int buscar_na_arvore(ArvLLRB *raiz, int valor){
     return B;
 }
 
+//Função para fazer uma rotação à direita na árvore
  NO* rotacionar_direita( NO* A){
      NO* B = A->esq;
     A->esq = B->dir;
@@ -70,6 +83,7 @@ int buscar_na_arvore(ArvLLRB *raiz, int valor){
     return B;
 }
 
+//Função para definir a cor de um nó na árvore
 int cor( NO* H){
     if(H == NULL)
         return PRETO;
@@ -77,6 +91,7 @@ int cor( NO* H){
         return H->cor;
 }
 
+//Função para redefinir a cor de um nó na árvore
 void trocar_cor_no( NO* H){
     H->cor = !H->cor;
     if(H->esq != NULL)
@@ -85,7 +100,8 @@ void trocar_cor_no( NO* H){
         H->dir->cor = !H->dir->cor;
 }
 
- NO* inserir_no( NO* H, int valor, int *resp){
+//Função para inserção de um nó na árvore
+NO* inserir_no( NO* H, int valor, int *resp){
     if(H == NULL){
          NO *novo;
         novo = ( NO*)malloc(sizeof( NO));
@@ -124,6 +140,7 @@ void trocar_cor_no( NO* H){
     return H;
 }
 
+//Função para inserção de nós na árvore
 int inserir_novo_no(ArvLLRB* raiz, int valor){
     int resp;
 
@@ -134,6 +151,7 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return resp;
 }
 
+//Função que garante o balanceamento da árvore
  NO* balancear_arvore( NO* H){
     if(cor(H->dir) == VERMELHO)
         H = rotacionar_esquerda(H);
@@ -147,7 +165,8 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return H;
 }
 
- NO* mover_2esq_VERMELHO( NO* H){
+//Função para mover um nó vermelho para a esquerda
+NO* mover_2esq_VERMELHO( NO* H){
     trocar_cor_no(H);
     if(cor(H->dir->esq) == VERMELHO){
         H->dir = rotacionar_direita(H->dir);
@@ -157,7 +176,8 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return H;
 }
 
- NO* mover_2dir_VERMELHO( NO* H){
+//Função para mover um nó vermelho para a direita
+NO* mover_2dir_VERMELHO( NO* H){
     trocar_cor_no(H);
     if(cor(H->esq->esq) == VERMELHO){
         H = rotacionar_direita(H);
@@ -166,7 +186,8 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return H;
 }
 
- NO* remover_menor_no( NO* H){
+//Função para remover o menor nó da árvore
+NO* remover_menor_no( NO* H){
     if(H->esq == NULL){
         free(H);
         return NULL;
@@ -178,7 +199,8 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return balancear_arvore(H);
 }
 
- NO* procurar_menor_no( NO* atual){
+//Função para procurar o menor nó da árvore
+NO* procurar_menor_no( NO* atual){
      NO *no1 = atual;
      NO *no2 = atual->esq;
     while(no2 != NULL){
@@ -188,7 +210,8 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return no1;
 }
 
- NO* remover_no( NO* H, int valor){
+//Função para remover um nó da árvore
+NO* remover_no( NO* H, int valor){
     if(valor < H->info){
         if(cor(H->esq) == PRETO && cor(H->esq->esq) == PRETO)
             H = mover_2esq_VERMELHO(H);
@@ -216,6 +239,7 @@ int inserir_novo_no(ArvLLRB* raiz, int valor){
     return balancear_arvore(H);
 }
 
+//Função para remover nós da árvore
 int remover_no_arvore(ArvLLRB *raiz, int valor){
     if(buscar_na_arvore(raiz,valor)){
          NO* h = *raiz;
@@ -227,6 +251,7 @@ int remover_no_arvore(ArvLLRB *raiz, int valor){
         return 0;
 }
 
+//Função para verificar se árvore está vazia
 int verifica_arvore_vazia(ArvLLRB *raiz){
     if(raiz == NULL)
         return 1;
@@ -235,6 +260,7 @@ int verifica_arvore_vazia(ArvLLRB *raiz){
     return 0;
 }
 
+//Função para contagem de nós na árvore
 int total_nos_arvore(ArvLLRB *raiz){
     if (raiz == NULL)
         return 0;
@@ -246,6 +272,7 @@ int total_nos_arvore(ArvLLRB *raiz){
     return (alt_esq + alt_dir + 1);
 }
 
+//Função para calcular a altura da árvore
 int altura_arvore(ArvLLRB *raiz){
     if (raiz == NULL)
         return 0;
@@ -259,6 +286,7 @@ int altura_arvore(ArvLLRB *raiz){
         return(alt_dir + 1);
 }
 
+//Função para percorrer a árvore em pós-ordem
 void  percorrer_pos_ordem(ArvLLRB *raiz, int H){
     if(raiz == NULL)
         return;
@@ -275,6 +303,7 @@ void  percorrer_pos_ordem(ArvLLRB *raiz, int H){
     }
 }
 
+//Função para percorrer a árvore em ordem
 void percorrer_em_ordem(ArvLLRB *raiz, int H){
     if(raiz == NULL)
         return;
@@ -291,6 +320,7 @@ void percorrer_em_ordem(ArvLLRB *raiz, int H){
     }
 }
 
+//Função para percorrer a árvore em pré-ordem
 void percorrer_pre_ordem(ArvLLRB *raiz,int H){
     if(raiz == NULL)
         return;
