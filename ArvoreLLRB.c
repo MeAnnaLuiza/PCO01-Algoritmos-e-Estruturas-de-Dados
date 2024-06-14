@@ -2,17 +2,17 @@
 #include <stdlib.h>
 #include "ArvoreLLRB.h"
 
-#define RED 1
-#define BLACK 0
+#define VERMELHO 1
+#define PRETO 0
 
-struct NO{
+typedef struct NO{
     int info;
     struct NO *esq;
     struct NO *dir;
     int cor;
-};
+} NO;
 
-ArvLLRB* cria_ArvLLRB(){
+ArvLLRB* criar_arvore(){
     ArvLLRB* raiz = (ArvLLRB*) malloc(sizeof(ArvLLRB));
     if(raiz != NULL){
         *raiz = NULL;
@@ -20,26 +20,26 @@ ArvLLRB* cria_ArvLLRB(){
     return raiz;
 }
 
-void libera_NO(struct NO* no){
+void liberar_no(NO* no){
     if(no == NULL)
         return;
-    libera_NO(no->esq);
-    libera_NO(no->dir);
+    liberar_no(no->esq);
+    liberar_no(no->dir);
     free(no);
     no = NULL;
 }
 
-void libera_ArvLLRB(ArvLLRB* raiz){
+void liberar_arvore(ArvLLRB* raiz){
     if(raiz == NULL)
         return;
-    libera_NO(*raiz);
+    liberar_no(*raiz);
     free(raiz);
 }
 
-int consulta_ArvLLRB(ArvLLRB *raiz, int valor){
+int buscar_na_arvore(ArvLLRB *raiz, int valor){
     if(raiz == NULL)
         return 0;
-    struct NO* atual = *raiz;
+     NO* atual = *raiz;
     while(atual != NULL){
         if(valor == atual->info){
             return 1;
@@ -52,32 +52,32 @@ int consulta_ArvLLRB(ArvLLRB *raiz, int valor){
     return 0;
 }
 
-struct NO* rotacionaEsquerda(struct NO* A){
-    struct NO* B = A->dir;
+ NO* rotacionar_esquerda( NO* A){
+     NO* B = A->dir;
     A->dir = B->esq;
     B->esq = A;
     B->cor = A->cor;
-    A->cor = RED;
+    A->cor = VERMELHO;
     return B;
 }
 
-struct NO* rotacionaDireita(struct NO* A){
-    struct NO* B = A->esq;
+ NO* rotacionar_direita( NO* A){
+     NO* B = A->esq;
     A->esq = B->dir;
     B->dir = A;
     B->cor = A->cor;
-    A->cor = RED;
+    A->cor = VERMELHO;
     return B;
 }
 
-int cor(struct NO* H){
+int cor( NO* H){
     if(H == NULL)
-        return BLACK;
+        return PRETO;
     else
         return H->cor;
 }
 
-void trocaCor(struct NO* H){
+void trocar_cor_no( NO* H){
     H->cor = !H->cor;
     if(H->esq != NULL)
         H->esq->cor = !H->esq->cor;
@@ -85,17 +85,17 @@ void trocaCor(struct NO* H){
         H->dir->cor = !H->dir->cor;
 }
 
-struct NO* insereNO(struct NO* H, int valor, int *resp){
+ NO* inserir_no( NO* H, int valor, int *resp){
     if(H == NULL){
-        struct NO *novo;
-        novo = (struct NO*)malloc(sizeof(struct NO));
+         NO *novo;
+        novo = ( NO*)malloc(sizeof( NO));
         if(novo == NULL){
             *resp = 0;
             return NULL;
         }
 
         novo->info = valor;
-        novo->cor = RED;
+        novo->cor = VERMELHO;
         novo->dir = NULL;
         novo->esq = NULL;
         *resp = 1;
@@ -106,83 +106,81 @@ struct NO* insereNO(struct NO* H, int valor, int *resp){
         *resp = 0;
     else{
         if(valor < H->info)
-            H->esq = insereNO(H->esq,valor,resp);
+            H->esq = inserir_no(H->esq,valor,resp);
         else
-            H->dir = insereNO(H->dir,valor,resp);
+            H->dir = inserir_no(H->dir,valor,resp);
     }
 
 
-    if(cor(H->dir) == RED && cor(H->esq) == BLACK)
-        H = rotacionaEsquerda(H);
+    if(cor(H->dir) == VERMELHO && cor(H->esq) == PRETO)
+        H = rotacionar_esquerda(H);
 
-    if(cor(H->esq) == RED && cor(H->esq->esq) == RED)
-        H = rotacionaDireita(H);
+    if(cor(H->esq) == VERMELHO && cor(H->esq->esq) == VERMELHO)
+        H = rotacionar_direita(H);
 
-    if(cor(H->esq) == RED && cor(H->dir) == RED)
-        trocaCor(H);
+    if(cor(H->esq) == VERMELHO && cor(H->dir) == VERMELHO)
+        trocar_cor_no(H);
 
     return H;
 }
 
-int insere_ArvLLRB(ArvLLRB* raiz, int valor){
+int inserir_novo_no(ArvLLRB* raiz, int valor){
     int resp;
 
-    *raiz = insereNO(*raiz,valor,&resp);
+    *raiz = inserir_no(*raiz,valor,&resp);
     if((*raiz) != NULL)
-        (*raiz)->cor = BLACK;
+        (*raiz)->cor = PRETO;
 
     return resp;
 }
 
-struct NO* balancear(struct NO* H){
-    if(cor(H->dir) == RED)
-        H = rotacionaEsquerda(H);
+ NO* balancear_arvore( NO* H){
+    if(cor(H->dir) == VERMELHO)
+        H = rotacionar_esquerda(H);
 
-    //if(H->esq != NULL && cor(H->dir) == RED && cor(H->esq->esq) == RED)
+    if(H->esq != NULL && cor(H->esq) == VERMELHO && cor(H->esq->esq) == VERMELHO)
+        H = rotacionar_direita(H);
 
-    if(H->esq != NULL && cor(H->esq) == RED && cor(H->esq->esq) == RED)
-        H = rotacionaDireita(H);
-
-    if(cor(H->esq) == RED && cor(H->dir) == RED)
-        trocaCor(H);
+    if(cor(H->esq) == VERMELHO && cor(H->dir) == VERMELHO)
+        trocar_cor_no(H);
 
     return H;
 }
 
-struct NO* move2EsqRED(struct NO* H){
-    trocaCor(H);
-    if(cor(H->dir->esq) == RED){
-        H->dir = rotacionaDireita(H->dir);
-        H = rotacionaEsquerda(H);
-        trocaCor(H);
+ NO* mover_2esq_VERMELHO( NO* H){
+    trocar_cor_no(H);
+    if(cor(H->dir->esq) == VERMELHO){
+        H->dir = rotacionar_direita(H->dir);
+        H = rotacionar_esquerda(H);
+        trocar_cor_no(H);
     }
     return H;
 }
 
-struct NO* move2DirRED(struct NO* H){
-    trocaCor(H);
-    if(cor(H->esq->esq) == RED){
-        H = rotacionaDireita(H);
-        trocaCor(H);
+ NO* mover_2dir_VERMELHO( NO* H){
+    trocar_cor_no(H);
+    if(cor(H->esq->esq) == VERMELHO){
+        H = rotacionar_direita(H);
+        trocar_cor_no(H);
     }
     return H;
 }
 
-struct NO* removerMenor(struct NO* H){
+ NO* remover_menor_no( NO* H){
     if(H->esq == NULL){
         free(H);
         return NULL;
     }
-    if(cor(H->esq) == BLACK && cor(H->esq->esq) == BLACK)
-        H = move2EsqRED(H);
+    if(cor(H->esq) == PRETO && cor(H->esq->esq) == PRETO)
+        H = mover_2esq_VERMELHO(H);
 
-    H->esq = removerMenor(H->esq);
-    return balancear(H);
+    H->esq = remover_menor_no(H->esq);
+    return balancear_arvore(H);
 }
 
-struct NO* procuraMenor(struct NO* atual){
-    struct NO *no1 = atual;
-    struct NO *no2 = atual->esq;
+ NO* procurar_menor_no( NO* atual){
+     NO *no1 = atual;
+     NO *no2 = atual->esq;
     while(no2 != NULL){
         no1 = no2;
         no2 = no2->esq;
@@ -190,46 +188,46 @@ struct NO* procuraMenor(struct NO* atual){
     return no1;
 }
 
-struct NO* remove_NO(struct NO* H, int valor){
+ NO* remover_no( NO* H, int valor){
     if(valor < H->info){
-        if(cor(H->esq) == BLACK && cor(H->esq->esq) == BLACK)
-            H = move2EsqRED(H);
+        if(cor(H->esq) == PRETO && cor(H->esq->esq) == PRETO)
+            H = mover_2esq_VERMELHO(H);
 
-        H->esq = remove_NO(H->esq, valor);
+        H->esq = remover_no(H->esq, valor);
     }else{
-        if(cor(H->esq) == RED)
-            H = rotacionaDireita(H);
+        if(cor(H->esq) == VERMELHO)
+            H = rotacionar_direita(H);
 
         if(valor == H->info && (H->dir == NULL)){
             free(H);
             return NULL;
         }
 
-        if(cor(H->dir) == BLACK && cor(H->dir->esq) == BLACK)
-            H = move2DirRED(H);
+        if(cor(H->dir) == PRETO && cor(H->dir->esq) == PRETO)
+            H = mover_2dir_VERMELHO(H);
 
         if(valor == H->info){
-            struct NO* x = procuraMenor(H->dir);
+             NO* x = procurar_menor_no(H->dir);
             H->info = x->info;
-            H->dir = removerMenor(H->dir);
+            H->dir = remover_menor_no(H->dir);
         }else
-            H->dir = remove_NO(H->dir, valor);
+            H->dir = remover_no(H->dir, valor);
     }
-    return balancear(H);
+    return balancear_arvore(H);
 }
 
-int remove_ArvLLRB(ArvLLRB *raiz, int valor){
-    if(consulta_ArvLLRB(raiz,valor)){
-        struct NO* h = *raiz;
-        *raiz = remove_NO(h,valor);
+int remover_no_arvore(ArvLLRB *raiz, int valor){
+    if(buscar_na_arvore(raiz,valor)){
+         NO* h = *raiz;
+        *raiz = remover_no(h,valor);
         if(*raiz != NULL)
-            (*raiz)->cor = BLACK;
+            (*raiz)->cor = PRETO;
         return 1;
     }else
         return 0;
 }
 
-int estaVazia_ArvLLRB(ArvLLRB *raiz){
+int verifica_arvore_vazia(ArvLLRB *raiz){
     if(raiz == NULL)
         return 1;
     if(*raiz == NULL)
@@ -237,39 +235,39 @@ int estaVazia_ArvLLRB(ArvLLRB *raiz){
     return 0;
 }
 
-int totalNO_ArvLLRB(ArvLLRB *raiz){
+int total_nos_arvore(ArvLLRB *raiz){
     if (raiz == NULL)
         return 0;
     if (*raiz == NULL)
         return 0;
 
-    int alt_esq = totalNO_ArvLLRB(&((*raiz)->esq));
-    int alt_dir = totalNO_ArvLLRB(&((*raiz)->dir));
+    int alt_esq = total_nos_arvore(&((*raiz)->esq));
+    int alt_dir = total_nos_arvore(&((*raiz)->dir));
     return (alt_esq + alt_dir + 1);
 }
 
-int altura_ArvLLRB(ArvLLRB *raiz){
+int altura_arvore(ArvLLRB *raiz){
     if (raiz == NULL)
         return 0;
     if (*raiz == NULL)
         return 0;
-    int alt_esq = altura_ArvLLRB(&((*raiz)->esq));
-    int alt_dir = altura_ArvLLRB(&((*raiz)->dir));
+    int alt_esq = altura_arvore(&((*raiz)->esq));
+    int alt_dir = altura_arvore(&((*raiz)->dir));
     if (alt_esq > alt_dir)
         return (alt_esq + 1);
     else
         return(alt_dir + 1);
 }
 
-void  posOrdem_ArvLLRB(ArvLLRB *raiz, int H){
+void  percorrer_pos_ordem(ArvLLRB *raiz, int H){
     if(raiz == NULL)
         return;
 
     if(*raiz != NULL){
-        posOrdem_ArvLLRB(&((*raiz)->esq),H+1);
-        posOrdem_ArvLLRB(&((*raiz)->dir),H+1);
+        percorrer_pos_ordem(&((*raiz)->esq),H+1);
+        percorrer_pos_ordem(&((*raiz)->dir),H+1);
 
-        if((*raiz)->cor == RED)
+        if((*raiz)->cor == VERMELHO)
             printf("%d  Vermelho: H(%d) \n",(*raiz)->info,H);
         else
             printf("%d  Preto: H(%d) \n",(*raiz)->info,H);
@@ -277,33 +275,33 @@ void  posOrdem_ArvLLRB(ArvLLRB *raiz, int H){
     }
 }
 
-void emOrdem_ArvLLRB(ArvLLRB *raiz, int H){
+void percorrer_em_ordem(ArvLLRB *raiz, int H){
     if(raiz == NULL)
         return;
 
     if(*raiz != NULL){
-        emOrdem_ArvLLRB(&((*raiz)->esq),H+1);
+        percorrer_em_ordem(&((*raiz)->esq),H+1);
 
-        if((*raiz)->cor == RED)
+        if((*raiz)->cor == VERMELHO)
             printf("%dR: H(%d) \n",(*raiz)->info,H);
         else
             printf("%dB: H(%d) \n",(*raiz)->info,H);
 
-        emOrdem_ArvLLRB(&((*raiz)->dir),H+1);
+        percorrer_em_ordem(&((*raiz)->dir),H+1);
     }
 }
 
-void preOrdem_ArvLLRB(ArvLLRB *raiz,int H){
+void percorrer_pre_ordem(ArvLLRB *raiz,int H){
     if(raiz == NULL)
         return;
 
     if(*raiz != NULL){
-        if((*raiz)->cor == RED)
+        if((*raiz)->cor == VERMELHO)
             printf("%d  Vermelho: H(%d) \n",(*raiz)->info,H);
         else
             printf("%d  Preto: H(%d) \n",(*raiz)->info,H);
 
-        preOrdem_ArvLLRB(&((*raiz)->esq),H+1);
-        preOrdem_ArvLLRB(&((*raiz)->dir),H+1);
+        percorrer_pre_ordem(&((*raiz)->esq),H+1);
+        percorrer_pre_ordem(&((*raiz)->dir),H+1);
     }
 }
